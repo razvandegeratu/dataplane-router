@@ -1,0 +1,69 @@
+# Router Implementation - Degeratu Razvan Andrei 323CA
+
+## Overview
+The router functions as a network layer device that forwards packets between different network segments.
+
+## Key Features
+
+### Packet Processing
+- Receives and processes Ethernet frames  
+- Handles both ARP and IP packets  
+- Validates IP checksums before processing packets  
+- Decrements TTL and updates checksum for forwarded packets  
+
+### Routing Functionality
+- Uses a routing table sorted by prefix length (longest prefix match)  
+- Forwards packets based on destination IP address  
+- Sends ICMP Destination Unreachable when no route exists  
+
+### ARP
+- Maintains an ARP cache mapping IP addresses to MAC addresses  
+- Processes incoming ARP requests and generates appropriate replies  
+- Queues IP packets when MAC address resolution is pending  
+- Sends ARP requests when MAC address is unknown  
+
+### ICMP
+- Responds to ICMP Echo requests (ping) directed at router interfaces  
+- Generates ICMP Time Exceeded messages when TTL expires  
+- Creates ICMP Destination Unreachable messages when no route exists  
+
+### Initialization
+- Sorts table by prefix length for efficient lookup  
+- Creates empty ARP cache and packet queue  
+
+### Main Processing Loop
+- Receives packets from any connected interface  
+- Categorizes packets based on EtherType (ARP or IP)  
+- Processes each packet based on its type and content  
+
+### ARP Processing
+- Handles incoming ARP requests by responding with router's MAC address  
+- Processes ARP replies by updating cache and sending queued packets  
+
+### IP Forwarding
+- Validates IP checksums  
+- Handles ICMP echo requests for router interfaces  
+- Finds best matching route using longest prefix match  
+- Decrements TTL and updates checksum  
+- Looks up destination MAC in ARP cache  
+- Either forwards packet (if MAC known) or queues it and sends ARP request  
+
+## Implementation Details
+
+### Data Structures
+- *Routing table entries:* Store prefix, mask, next hop IP, and interface  
+- *ARP cache entries:* Map IP addresses to MAC addresses  
+- *Packet queue:* Holds packets waiting for ARP resolution  
+
+### Core Functions
+- `find_matching_route`: Implements longest prefix matching  
+- `lookup_mac_address`: Searches ARP cache for IP to MAC mapping  
+- `generate_arp_request`: Creates ARP requests for unknown MAC addresses  
+- `process_arp_reply`: Updates ARP cache and sends queued packets  
+- `create_icmp_error`: Generates ICMP error messages  
+- `handle_icmp_echo_request`: Processes and responds to ping requests  
+
+## Error Handling
+- Checks for memory allocation failures  
+- Validates checksums to avoid processing corrupted packets  
+- Generates appropriate ICMP errors for common routing issues 
